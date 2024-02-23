@@ -10,6 +10,8 @@ func main() {
 	// функцию "home" регистрируется как обработчик для URL-шаблона "/".
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
+	mux.HandleFunc("/link", showLink)
+	mux.HandleFunc("/link/create", createLink)
 
 	// Используется функция http.ListenAndServe() для запуска нового веб-сервера.
 	// Мы передаем два параметра: TCP-адрес сети для прослушивания (в данном случае это "localhost:8080")
@@ -25,6 +27,21 @@ func main() {
 // Создается функция-обработчик "home", которая записывает байтовый слайс, содержащий
 // текст "Привет из LinkBox" как тело ответа.
 
+// обработчик главной страницы
 func home(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
 	w.Write([]byte("Привет из LinkBox"))
+}
+
+// Обработчик для отображения содержимого заметки
+func showLink(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Отображение заметки ..."))
+}
+
+// Обработчик для создание новой заметки
+func createLink(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Форма для создания новой заметки ..."))
 }
