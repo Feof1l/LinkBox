@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
@@ -14,6 +15,10 @@ func main() {
 	// извлекаем флаг из командной строки
 	flag.Parse()
 
+	// создаем новый логер для вывода информационных сообщенйи в поток stdout c припиской info
+	infoLOg := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	//аналогично для логов с ошибками, такеж включим вывод фйла и номера  строки, где произошла ошибка
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	// инициализация нового рoутера,функцию "home" регистрируется как обработчик для URL-шаблона "/".
 	mux := http.NewServeMux()
 
@@ -29,13 +34,21 @@ func main() {
 	//mux.Handle("/static", http.NotFoundHandler())
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
+	//Инициализируем новую структуру http.Server, устанавливаем поля Addr и Handler,
+	// поле ErrorLog, чтобы сервер использовал наш логгер вместо стандартного
+	srv := &http.Server{
+		Addr:     *addr,
+		ErrorLog: errorLog,
+		Handler:  mux,
+	}
+
 	// запуска нового веб-сервера.
 	// параметры: TCP-адрес сети для прослушивания (в данном случае это "localhost:8080")
 	// что любая ошибка, возвращаемая от http.ListenAndServe(), всегда non-nil.
 	// flag.String() вовзращает указатель, поэтому нам нужно убрать ссылку
-	log.Printf("Запуск веб-сервера на %s", *addr)
-	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	infoLOg.Printf("Запуск веб-сервера на %s", *addr)
+	err := srv.ListenAndServe()
+	errorLog.Fatal(err)
 
 }
 
