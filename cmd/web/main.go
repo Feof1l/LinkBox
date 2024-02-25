@@ -25,26 +25,13 @@ func main() {
 		errorLog: errorLog,
 		infoLog:  infoLOg,
 	}
-	mux := http.NewServeMux()
-	// инициализация нового рoутера,функцию "home" регистрируется как обработчик для URL-шаблона "/".
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/link", app.showLink)
-	mux.HandleFunc("/link/create", app.createLink)
-
-	//  обработчик HTTP-запросов к статическим файлам из папки "./ui/static"
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	// обработчика для всех запросов, которые начинаются с "/static/". Мы убираем
-	// префикс "/static" перед тем как запрос достигнет http.FileServer
-
-	//mux.Handle("/static", http.NotFoundHandler())
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	//Инициализируем новую структуру http.Server, устанавливаем поля Addr и Handler,
 	// поле ErrorLog, чтобы сервер использовал наш логгер вместо стандартного
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
-		Handler:  mux,
+		Handler:  app.routes(), // Вызов нового метода app.routes()
 	}
 
 	// запуска нового веб-сервера.
@@ -58,6 +45,8 @@ func main() {
 }
 
 // структура `application` для хранения зависимостей всего веб-приложения.
+// внедряем паттерн Dependency Injection - В целом рекомендуется внедрять зависимости в обработчики.
+// Это делает код более явным, менее подверженным ошибкам  более простым для модульного тестирования, чем в случае использования глобальных переменных.
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
