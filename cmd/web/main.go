@@ -19,12 +19,17 @@ func main() {
 	infoLOg := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	//аналогично для логов с ошибками, такеж включим вывод фйла и номера  строки, где произошла ошибка
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
-	// инициализация нового рoутера,функцию "home" регистрируется как обработчик для URL-шаблона "/".
-	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/link", showLink)
-	mux.HandleFunc("/link/create", createLink)
+	// Инициализируем новую структуру с зависимостями приложения.
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLOg,
+	}
+	mux := http.NewServeMux()
+	// инициализация нового рoутера,функцию "home" регистрируется как обработчик для URL-шаблона "/".
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/link", app.showLink)
+	mux.HandleFunc("/link/create", app.createLink)
 
 	//  обработчик HTTP-запросов к статическим файлам из папки "./ui/static"
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
@@ -50,6 +55,12 @@ func main() {
 	err := srv.ListenAndServe()
 	errorLog.Fatal(err)
 
+}
+
+// структура `application` для хранения зависимостей всего веб-приложения.
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
 }
 
 type neuteredFileSystem struct {
