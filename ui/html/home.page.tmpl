@@ -21,7 +21,25 @@
     {{else}}
         <p>Здесь ничего нет... пока что!</p>
     {{end}}
-<h3> </h3>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Redirect Example</title>
+    <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+    <button onclick="redirectToNewPage()">Создать новую заметку</button>
+
+    <script>
+    function redirectToNewPage() {
+    window.location.href = 'link/create';
+    }
+    </script>
+    </body>
+    </html>
+    <h3> </h3>
 {{end}}
  
 

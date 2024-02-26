@@ -62,6 +62,7 @@ func main() {
 	// параметры: TCP-адрес сети для прослушивания (в данном случае это "localhost:8080")
 	// что любая ошибка, возвращаемая от http.ListenAndServe(), всегда non-nil.
 	// flag.String() вовзращает указатель, поэтому нам нужно убрать ссылку
+
 	infoLOg.Printf("Запуск веб-сервера на %s", *addr)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)

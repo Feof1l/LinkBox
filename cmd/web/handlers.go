@@ -2,7 +2,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -120,25 +121,59 @@ func (app *application) showLink(w http.ResponseWriter, r *http.Request) {
 
 // Обработчик для создание новой заметки
 func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
-	//Создание новой заметки в базе данных является не идемпотентным действием,
-	//которое изменяет состояние нашего сервера. Поэтому мы должны
-	// ограничить маршрут, чтобы он отвечал только на POST-запросы.
-	if r.Method != http.MethodPost {
-		// для каждого ответа 405 «метод запрещен»,
-		//чтобы пользователь знал, какие HTTP-методы поддерживаются для определенного URL.
-		// указываем доствупные методы
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
+
+	// Инициализируем срез содержащий пути к двум файлам. Обратите внимание, что
+	// файл home.page.tmpl должен быть *первым* файлом в срезе.
+	files := []string{
+		"./ui/html/create.page.tmpl",
+		"./ui/html/base.layout.tmpl",
+		"./ui/html/footer.partial.tmpl",
 	}
-	title := "История про улитку"
-	content := "Улитка выползла из раковины,\nвытянула рожки,\nи опять подобрала их."
-	expires := "7"
-	id, err := app.links.Insert(title, content, expires)
+
+	// Используем функцию template.ParseFiles() для чтения файлов шаблона.
+	// Если возникла ошибка, мы запишем детальное сообщение ошибки и
+	// используя функцию http.Error() мы отправим пользователю
+	// ответ: 500 Internal Server Error (Внутренняя ошибка на сервере)
+	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		app.serverError(w, err)
+		log.Println(err.Error())
+		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	http.Redirect(w, r, fmt.Sprintf("/link?id=%d", id), http.StatusSeeOther)
-	//w.Write([]byte("Форма для создания новой заметки ..."))
+
+	// Затем мы используем метод Execute() для записи содержимого
+	// шаблона в тело HTTP ответа. Последний параметр в Execute() предоставляет
+	// возможность отправки динамических данных в шаблон.
+	err = ts.Execute(w, nil)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Internal Server Error", 500)
+	}
+	//http.Redirect(w, r, "/new-page", http.StatusSeeOther)
+
+	/*
+		//Создание новой заметки в базе данных является не идемпотентным действием,
+		//которое изменяет состояние нашего сервера. Поэтому мы должны
+		// ограничить маршрут, чтобы он отвечал только на POST-запросы.
+		if r.Method != http.MethodPost {
+			// для каждого ответа 405 «метод запрещен»,
+			//чтобы пользователь знал, какие HTTP-методы поддерживаются для определенного URL.
+			// указываем доствупные методы
+			w.Header().Set("Allow", http.MethodPost)
+			app.clientError(w, http.StatusMethodNotAllowed)
+			return
+		}
+		title := "История про улитку"
+		content := "Улитка выползла из раковины,\nвытянула рожки,\nи опять подобрала их."
+		expires := "7"
+		id, err := app.links.Insert(title, content, expires)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+		http.Redirect(w, r, fmt.Sprintf("/link?id=%d", id), http.StatusSeeOther)
+		//w.Write([]byte("Форма для создания новой заметки ..."))
+
+
+	*/
 }
