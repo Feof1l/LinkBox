@@ -3,7 +3,26 @@
 {{define "title"}}Домашняя страницы{{end}}
  
 {{define "main"}}
-<h2>Последние заметки</h2>
-<p>Пока здесь ничего нет!</p>
+{{if .Links}}
+     <table>
+        <tr>
+            <th>Заголовок</th>
+            <th>Создан</th>
+            <th>ID</th>
+        </tr>
+        {{range .Links}}
+        <tr>
+            <td><a href='/link?id={{.ID}}'>{{.Title}}</a></td>
+            <td>{{.Created}}</td>
+            <td>#{{.ID}}</td>
+        </tr>
+        {{end}}
+    </table>
+    {{else}}
+        <p>Здесь ничего нет... пока что!</p>
+    {{end}}
 <h3> </h3>
 {{end}}
+ 
+
+ 
