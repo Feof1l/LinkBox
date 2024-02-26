@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -34,11 +35,19 @@ func main() {
 	}
 	// делаем отложенное закрытие БД, чтобы пул соединений был закрыт  до выхода из main
 	defer db.Close()
+
+	//инициализируем новый кэш шаблона
+	templateCache, err := newTemplateCache("./ui/html")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	// Инициализируем новую структуру с зависимостями приложения.
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLOg,
-		links:    &mysql.LinkModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLOg,
+		links:         &mysql.LinkModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	//Инициализируем новую структуру http.Server, устанавливаем поля Addr и Handler,
@@ -63,9 +72,10 @@ func main() {
 // внедряем паттерн Dependency Injection - В целом рекомендуется внедрять зависимости в обработчики.
 // Это делает код более явным, менее подверженным ошибкам  более простым для модульного тестирования, чем в случае использования глобальных переменных.
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	links    *mysql.LinkModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	links         *mysql.LinkModel
+	templateCache map[string]*template.Template
 }
 
 type neuteredFileSystem struct {
