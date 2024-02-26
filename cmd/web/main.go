@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Feof1l/LinkBox/pkg/models/mysql"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -37,6 +38,7 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLOg,
+		links:    &mysql.LinkModel{DB: db},
 	}
 
 	//Инициализируем новую структуру http.Server, устанавливаем поля Addr и Handler,
@@ -63,6 +65,7 @@ func main() {
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	links    *mysql.LinkModel
 }
 
 type neuteredFileSystem struct {
