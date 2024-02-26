@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -22,37 +21,42 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-	// Создаем экземпляр структуры templateData, содержащий срез с заметками.
-	data := &templateData{Links: s}
-
-	//Инициализируем срез содержащий пути к двум файлам.
-	// файл home.page.tmpl должен быть *первым* файлом в срезе.
-	files := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	// читаем файлы шаблона
-	// если возникает ошибка, возвращаем 500 код
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		//app.errorLog.Println(err.Error())
-		app.serverError(w, err)
-		return
-	}
-	//мы используем метод Execute() для записи содержимого
-	//шаблона в тело HTTP ответа. Последний параметр в Execute() предоставляет
-	//возможность отправки динамических данных в шаблон.
-	err = ts.Execute(w, data)
-	if err != nil {
-		//app.errorLog.Println(err.Error())
-		app.serverError(w, err)
-	}
+	// отображаем шаблон
+	app.render(w, r, "home.page.tmpl", &templateData{
+		Links: s,
+	})
 	/*
-		for _, link := range s {
-			fmt.Fprintf(w, "%v\n", link)
+		// Создаем экземпляр структуры templateData, содержащий срез с заметками.
+		data := &templateData{Links: s}
+
+		//Инициализируем срез содержащий пути к двум файлам.
+		// файл home.page.tmpl должен быть *первым* файлом в срезе.
+		files := []string{
+			"./ui/html/home.page.tmpl",
+			"./ui/html/base.layout.tmpl",
+			"./ui/html/footer.partial.tmpl",
 		}
+
+		// читаем файлы шаблона
+		// если возникает ошибка, возвращаем 500 код
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			//app.errorLog.Println(err.Error())
+			app.serverError(w, err)
+			return
+		}
+		//мы используем метод Execute() для записи содержимого
+		//шаблона в тело HTTP ответа. Последний параметр в Execute() предоставляет
+		//возможность отправки динамических данных в шаблон.
+		err = ts.Execute(w, data)
+		if err != nil {
+			//app.errorLog.Println(err.Error())
+			app.serverError(w, err)
+		}
+			for _, link := range s {
+				fmt.Fprintf(w, "%v\n", link)
+			}
+
 	*/
 
 	//w.Write([]byte("Привет из LinkBox"))
@@ -79,33 +83,37 @@ func (app *application) showLink(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	app.render(w, r, "show.page.tmpl", &templateData{
+		Link: s,
+	})
 
-	// Создаем экземпляр структуры templateData, содержащей данные заметки.
-	data := &templateData{Link: s}
+	/*
+		// Создаем экземпляр структуры templateData, содержащей данные заметки.
+		data := &templateData{Link: s}
 
-	files := []string{
-		"./ui/html/show.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
+		files := []string{
+			"./ui/html/show.page.tmpl",
+			"./ui/html/base.layout.tmpl",
+			"./ui/html/footer.partial.tmpl",
+		}
 
-	// читаем файлы шаблона
-	// если возникает ошибка, возвращаем 500 код
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		//app.errorLog.Println(err.Error())
-		app.serverError(w, err)
-		return
-	}
-	//мы используем метод Execute() для записи содержимого
-	//шаблона в тело HTTP ответа. Последний параметр в Execute() предоставляет
-	//возможность отправки динамических данных в шаблон.
-	err = ts.Execute(w, data)
-	if err != nil {
-		//app.errorLog.Println(err.Error())
-		app.serverError(w, err)
-	}
-
+		// читаем файлы шаблона
+		// если возникает ошибка, возвращаем 500 код
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			//app.errorLog.Println(err.Error())
+			app.serverError(w, err)
+			return
+		}
+		//мы используем метод Execute() для записи содержимого
+		//шаблона в тело HTTP ответа. Последний параметр в Execute() предоставляет
+		//возможность отправки динамических данных в шаблон.
+		err = ts.Execute(w, data)
+		if err != nil {
+			//app.errorLog.Println(err.Error())
+			app.serverError(w, err)
+		}
+	*/
 	//fmt.Fprintf(w, "%v", s)
 	//w.Write([]byte("Отображение заметки ..."))
 }
