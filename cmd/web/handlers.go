@@ -67,14 +67,17 @@ func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 		//чтобы пользователь знал, какие HTTP-методы поддерживаются для определенного URL.
 		// указываем доствупные методы
 		w.Header().Set("Allow", http.MethodPost)
-
-		/*
-			w.WriteHeader(405)
-			w.Write([]byte("Доступен только POST-метод!"))
-		*/
-
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	w.Write([]byte("Форма для создания новой заметки ..."))
+	title := "История про улитку"
+	content := "Улитка выползла из раковины,\nвытянула рожки,\nи опять подобрала их."
+	expires := "7"
+	id, err := app.links.Insert(title, content, expires)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	http.Redirect(w, r, fmt.Sprintf("/link?id=%d", id), http.StatusSeeOther)
+	//w.Write([]byte("Форма для создания новой заметки ..."))
 }

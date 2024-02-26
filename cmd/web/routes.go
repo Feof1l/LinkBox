@@ -7,8 +7,8 @@ func (app *application) routes() *http.ServeMux {
 
 	// инициализация нового рoутера,функцию "home" регистрируется как обработчик для URL-шаблона "/".
 	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet", app.showLink)
-	mux.HandleFunc("/snippet/create", app.createLink)
+	mux.HandleFunc("/link", app.showLink)
+	mux.HandleFunc("/link/create", app.createLink)
 
 	//  обработчик HTTP-запросов к статическим файлам из папки "./ui/static"
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
