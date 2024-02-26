@@ -1,17 +1,23 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
 
 	//флаг командной строки, значение по умолчанию: 8080 + справка по флагу
 	addr := flag.String("addr", ":8080", "Сетевой адрес HTTP")
+
+	// Определение нового флага из командной строки для настройки MySQL подключения.
+	dsn := flag.String("dsn", "web:pass@/linkbox?parseTime=true", "Название MySQL источника данных")
 	// извлекаем флаг из командной строки
 	flag.Parse()
 
@@ -20,6 +26,13 @@ func main() {
 	//аналогично для логов с ошибками, такеж включим вывод фйла и номера  строки, где произошла ошибка
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
+	//создаем пул соединений, передаем как параметр флаг из командной строки
+	db, err := openDB(*dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	// делаем отложенное закрытие БД, чтобы пул соединений был закрыт  до выхода из main
+	defer db.Close()
 	// Инициализируем новую структуру с зависимостями приложения.
 	app := &application{
 		errorLog: errorLog,
@@ -39,7 +52,7 @@ func main() {
 	// что любая ошибка, возвращаемая от http.ListenAndServe(), всегда non-nil.
 	// flag.String() вовзращает указатель, поэтому нам нужно убрать ссылку
 	infoLOg.Printf("Запуск веб-сервера на %s", *addr)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 
 }
@@ -76,4 +89,16 @@ func (nfs neuteredFileSystem) Open(path string) (http.File, error) {
 	}
 
 	return f, nil
+}
+
+// обертывает sql.Open() и возвращает пул соединений sql.DB для заданной строки подключения (DSN).
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
 }
