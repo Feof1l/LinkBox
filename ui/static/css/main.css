@@ -59,6 +59,12 @@ h2 {
     position: relative;
     top: -9px;
 }
+h6 {
+    font-size: 50px;
+    transform: translateX(100px);
+    margin-top: 500px;
+ 
+}
 h3{
     font-size: 1200px;
     font-weight: bold;

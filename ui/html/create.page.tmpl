@@ -13,22 +13,94 @@
 <body>
 <div class="form-container">
   <h1>Заголовок</h1>
-  <input type="text" placeholder="Enter title here">
+  <input type="text" placeholder1="Enter title here">
   <h2>Заметка</h2>
-  <textarea placeholder="Enter content here"></textarea>
-</div>
-</body>
-<!DOCTYPE html>
+  <textarea placeholder2="Enter content here"></textarea>
+  <h6>  Выберите срок жизни заметки</h6> 
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Button Redirect Example</title>
 <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<button>Сохранить</button>
 
+</head>
+
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <style>
+        .radio-container {
+            display: flex;
+            justify-content: center;
+        }
+        input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #333;
+            margin: 0 10px;
+            
+        }
+        input[type="radio"]:checked {
+            background-color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="radio-container">
+
+    <label><input type="radio" name="option" value="1"> 7 дней</label>
+    <label><input type="radio" name="option" value="2"> 30 дней</label>
+    <label><input type="radio" name="option" value="3"> 1 год</label>
+</div>
+
+</body>
+</html>
+</div>
+
+
+</body>
+
+
+<body>
+
+<button onclick="submitData()">Сохранить</button>
+<script>
+function submitData() {
+    var title = document.getElementById('placeholder1').value;
+    var content = document.getElementById('placeholder2').value;
+   
+
+    var data = {
+        title: title,
+        content: content,
+        
+    };
+
+    fetch('/submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(result => {
+        console.log(result);
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+    });
+}
+</script>
 
 </body>
 </html>

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -119,6 +121,12 @@ func (app *application) showLink(w http.ResponseWriter, r *http.Request) {
 	//w.Write([]byte("Отображение заметки ..."))
 }
 
+type FormData struct {
+	Title   string "title"
+	Content string "content"
+	Option  string "option"
+}
+
 // Обработчик для создание новой заметки
 func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 
@@ -151,29 +159,32 @@ func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 	}
 	//http.Redirect(w, r, "/new-page", http.StatusSeeOther)
 
-	/*
-		//Создание новой заметки в базе данных является не идемпотентным действием,
-		//которое изменяет состояние нашего сервера. Поэтому мы должны
-		// ограничить маршрут, чтобы он отвечал только на POST-запросы.
-		if r.Method != http.MethodPost {
-			// для каждого ответа 405 «метод запрещен»,
-			//чтобы пользователь знал, какие HTTP-методы поддерживаются для определенного URL.
-			// указываем доствупные методы
-			w.Header().Set("Allow", http.MethodPost)
-			app.clientError(w, http.StatusMethodNotAllowed)
-			return
-		}
-		title := "История про улитку"
-		content := "Улитка выползла из раковины,\nвытянула рожки,\nи опять подобрала их."
-		expires := "7"
-		id, err := app.links.Insert(title, content, expires)
-		if err != nil {
-			app.serverError(w, err)
-			return
-		}
-		http.Redirect(w, r, fmt.Sprintf("/link?id=%d", id), http.StatusSeeOther)
-		//w.Write([]byte("Форма для создания новой заметки ..."))
+	//Создание новой заметки в базе данных является не идемпотентным действием,
+	//которое изменяет состояние нашего сервера. Поэтому мы должны
+	// ограничить маршрут, чтобы он отвечал только на POST-запросы.
+	if r.Method != http.MethodPost {
+		// для каждого ответа 405 «метод запрещен»,
+		//чтобы пользователь знал, какие HTTP-методы поддерживаются для определенного URL.
+		// указываем доствупные методы
+		w.Header().Set("Allow", http.MethodPost)
+		app.clientError(w, http.StatusMethodNotAllowed)
+		return
+	}
+	var formData FormData
+	err = json.NewDecoder(r.Body).Decode(&formData)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
+	id, err := app.links.Insert("INSERT INTO mytable (title, content) VALUES (?, ?)", formData.Title, formData.Content)
+	if err != nil {
+		log.Fatal(err)
+		http.Error(w, "Ошибка при записи данных в базу данных", http.StatusInternalServerError)
+		return
+	}
 
-	*/
+	http.Redirect(w, r, fmt.Sprintf("/link?id=%d", id), http.StatusSeeOther)
+	//w.Write([]byte("Форма для создания новой заметки ..."))
+
 }
