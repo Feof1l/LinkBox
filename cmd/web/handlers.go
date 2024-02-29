@@ -152,7 +152,7 @@ func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 	// Затем мы используем метод Execute() для записи содержимого
 	// шаблона в тело HTTP ответа. Последний параметр в Execute() предоставляет
 	// возможность отправки динамических данных в шаблон.
-	err = ts.Execute(w, nil)
+	err = ts.Execute(w, r)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)
@@ -162,14 +162,14 @@ func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 	//Создание новой заметки в базе данных является не идемпотентным действием,
 	//которое изменяет состояние нашего сервера. Поэтому мы должны
 	// ограничить маршрут, чтобы он отвечал только на POST-запросы.
-	if r.Method != http.MethodPost {
+	/*if r.Method != http.MethodPost {
 		// для каждого ответа 405 «метод запрещен»,
 		//чтобы пользователь знал, какие HTTP-методы поддерживаются для определенного URL.
 		// указываем доствупные методы
 		w.Header().Set("Allow", http.MethodPost)
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
-	}
+	}*/
 	var formData FormData
 	err = json.NewDecoder(r.Body).Decode(&formData)
 	if err != nil {

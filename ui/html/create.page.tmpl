@@ -3,104 +3,72 @@
 {{define "title"}}Форма добавления заметок{{end}}
  
 {{define "main"}}
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Form Page</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-<h5>  Добавьте свою заметку</h5>
-<body>
-<div class="form-container">
-  <h1>Заголовок</h1>
-  <input type="text" placeholder1="Enter title here">
-  <h2>Заметка</h2>
-  <textarea placeholder2="Enter content here"></textarea>
-  <h6>  Выберите срок жизни заметки</h6> 
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Button Redirect Example</title>
-<link rel="stylesheet" href="styles.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простая HTML страница</title>
 </head>
-
-<!DOCTYPE html>
-<html>
-<head>
-    
-    <style>
-        .radio-container {
-            display: flex;
-            justify-content: center;
-        }
-        input[type="radio"] {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid #333;
-            margin: 0 10px;
-            
-        }
-        input[type="radio"]:checked {
-            background-color: #333;
-        }
-    </style>
-</head>
-
 <body>
 
-<div class="radio-container">
+    <h1>Добавьте новую заметку</h1>
 
-    <label><input type="radio" name="option" value="1"> 7 дней</label>
-    <label><input type="radio" name="option" value="2"> 30 дней</label>
-    <label><input type="radio" name="option" value="3"> 1 год</label>
-</div>
+    <label for="input1">Заголовок:</label>
+    <input type="text" id="input1" placeholder="Введите заголовок заметки">
 
-</body>
-</html>
-</div>
+    <br>
 
+    <label for="input2">Заметка:</label>
+    <input type="text" id="input2" placeholder="Введите текст">
 
-</body>
+    <br>
 
+    <label>Выберите срок жизни заметки:</label>
+    <label for="option1">
+        <input type="radio" id="option1" name="options" value="option1"> 7 дней
+    </label>
+    <label for="option2">
+        <input type="radio" id="option2" name="options" value="option2"> 30 дней
+    </label>
+    <label for="option3">
+        <input type="radio" id="option3" name="options" value="option3"> 365 дней
+    </label>
 
-<body>
+    <br>
 
-<button onclick="submitData()">Сохранить</button>
-<script>
-function submitData() {
-    var title = document.getElementById('placeholder1').value;
-    var content = document.getElementById('placeholder2').value;
-   
+    <button id="submitBtn">Сохранить</button>
 
-    var data = {
-        title: title,
-        content: content,
-        
-    };
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            // Получаем значения полей ввода и радиокнопок
+            var input1Value = document.getElementById('input1').value;
+            var input2Value = document.getElementById('input2').value;
+            var selectedOption = document.querySelector('input[name="options"]:checked').value;
 
-    fetch('/submit', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.text())
-    .then(result => {
-        console.log(result);
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-    });
-}
-</script>
+            // Формируем объект с данными для отправки
+            var data = {
+                input1: input1Value,
+                input2: input2Value,
+            };
+
+            // Отправляем POST запрос на бэкенд (здесь предполагается, что у вас есть бэкенд, который принимает POST запросы)
+            fetch('http://localhost:8080/link/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Успешно отправлено:', data);
+            })
+            .catch((error) => {
+                console.error('Ошибка:', error);
+            });
+        });
+    </script>
 
 </body>
 </html>
