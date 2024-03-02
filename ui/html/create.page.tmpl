@@ -44,22 +44,27 @@
             // Получаем значения полей ввода и радиокнопок
             var input1Value = document.getElementById('input1').value;
             var input2Value = document.getElementById('input2').value;
-            var selectedOption = document.querySelector('input[name="options"]:checked').value;
+            //var selectedOption = document.querySelector('input[name="options"]:checked').value;
+            var selectedOption = document.getElementById('option1').value;
 
             // Формируем объект с данными для отправки
             var data = {
-                input1: input1Value,
-                input2: input2Value,
+                title: input1Value,
+                content: input2Value,
+                option: selectedOption,
             };
 
-            // Отправляем POST запрос на бэкенд (здесь предполагается, что у вас есть бэкенд, который принимает POST запросы)
-            fetch('http://localhost:8080/link/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
+            // Отправляем POST запрос на бэкенд 
+            fetch(
+                "/link/create",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                }
+            )
             .then(response => response.json())
             .then(data => {
                 console.log('Успешно отправлено:', data);

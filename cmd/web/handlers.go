@@ -122,42 +122,45 @@ func (app *application) showLink(w http.ResponseWriter, r *http.Request) {
 }
 
 type FormData struct {
-	Title   string "title"
-	Content string "content"
-	Option  string "option"
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Option  bool   `json:"option"`
 }
 
 // Обработчик для создание новой заметки
 func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 
-	// Инициализируем срез содержащий пути к двум файлам. Обратите внимание, что
-	// файл home.page.tmpl должен быть *первым* файлом в срезе.
-	files := []string{
-		"./ui/html/create.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
+	if r.Method == http.MethodGet { // GET page from browser (dafault)
+		// Инициализируем срез содержащий пути к двум файлам. Обратите внимание, что
+		// файл home.page.tmpl должен быть *первым* файлом в срезе.
+		files := []string{
+			"./ui/html/create.page.tmpl",
+			"./ui/html/base.layout.tmpl",
+			"./ui/html/footer.partial.tmpl",
+		}
 
-	// Используем функцию template.ParseFiles() для чтения файлов шаблона.
-	// Если возникла ошибка, мы запишем детальное сообщение ошибки и
-	// используя функцию http.Error() мы отправим пользователю
-	// ответ: 500 Internal Server Error (Внутренняя ошибка на сервере)
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		// Используем функцию template.ParseFiles() для чтения файлов шаблона.
+		// Если возникла ошибка, мы запишем детальное сообщение ошибки и
+		// используя функцию http.Error() мы отправим пользователю
+		// ответ: 500 Internal Server Error (Внутренняя ошибка на сервере)
+		ts, err := template.ParseFiles(files...)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, "Internal Server Error", 500)
+			return
+		}
+
+		// Затем мы используем метод Execute() для записи содержимого
+		// шаблона в тело HTTP ответа. Последний параметр в Execute() предоставляет
+		// возможность отправки динамических данных в шаблон.
+		err = ts.Execute(w, nil)
+		if err != nil {
+			log.Println(err.Error())
+			http.Error(w, "Internal Server Error", 500)
+		}
+		//http.Redirect(w, r, "/new-page", http.StatusSeeOther)
 		return
 	}
-
-	// Затем мы используем метод Execute() для записи содержимого
-	// шаблона в тело HTTP ответа. Последний параметр в Execute() предоставляет
-	// возможность отправки динамических данных в шаблон.
-	err = ts.Execute(w, r)
-	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
-	}
-	//http.Redirect(w, r, "/new-page", http.StatusSeeOther)
 
 	//Создание новой заметки в базе данных является не идемпотентным действием,
 	//которое изменяет состояние нашего сервера. Поэтому мы должны
@@ -170,21 +173,31 @@ func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 		app.clientError(w, http.StatusMethodNotAllowed)
 		return
 	}*/
-	var formData FormData
-	err = json.NewDecoder(r.Body).Decode(&formData)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
-	id, err := app.links.Insert("INSERT INTO mytable (title, content) VALUES (?, ?)", formData.Title, formData.Content)
-	if err != nil {
-		log.Fatal(err)
-		http.Error(w, "Ошибка при записи данных в базу данных", http.StatusInternalServerError)
-		return
-	}
+	// POST
+	if r.Method == http.MethodPost {
+		var formData FormData
+		err := json.NewDecoder(r.Body).Decode(&formData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
-	http.Redirect(w, r, fmt.Sprintf("/link?id=%d", id), http.StatusSeeOther)
-	//w.Write([]byte("Форма для создания новой заметки ..."))
+		fmt.Println(formData.Option)
+		/*id, err := app.links.Insert("INSERT INTO mytable (title, content) VALUES (?, ?)", formData.Title, formData.Content)
+		if err != nil {
+			http.Error(w, "Ошибка при записи данных в базу данных", http.StatusInternalServerError)
+			return
+		}*/
+
+		id, err := app.links.Insert(formData.Title, formData.Content, "")
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+		w.Write([]byte(fmt.Sprint("%d", id)))
+		//http.Redirect(w, r, fmt.Sprintf("/link?id=%d", id), http.StatusSeeOther)
+		//w.Write([]byte("Форма для создания новой заметки ..."))
+	}
 
 }
