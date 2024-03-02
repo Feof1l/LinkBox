@@ -24,16 +24,8 @@
 
     <br>
 
-    <label>Выберите срок жизни заметки:</label>
-    <label for="option1">
-        <input type="radio" id="option1" name="options" value="option1"> 7 дней
-    </label>
-    <label for="option2">
-        <input type="radio" id="option2" name="options" value="option2"> 30 дней
-    </label>
-    <label for="option3">
-        <input type="radio" id="option3" name="options" value="option3"> 365 дней
-    </label>
+    <label for="input3">Выберите срок жизни заметки:</label>
+    <input type="text" id="input3" placeholder="Введите количество дней,через которое заметка будет удалена">
 
     <br>
 
@@ -44,14 +36,19 @@
             // Получаем значения полей ввода и радиокнопок
             var input1Value = document.getElementById('input1').value;
             var input2Value = document.getElementById('input2').value;
-            //var selectedOption = document.querySelector('input[name="options"]:checked').value;
-            var selectedOption = document.getElementById('option1').value;
+            var input3Value = document.getElementById('input3').value;
+            
+            
+        
+            
+ 
+
 
             // Формируем объект с данными для отправки
             var data = {
                 title: input1Value,
                 content: input2Value,
-                option: selectedOption,
+                expires: input3Value,
             };
 
             // Отправляем POST запрос на бэкенд 

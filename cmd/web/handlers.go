@@ -124,7 +124,7 @@ func (app *application) showLink(w http.ResponseWriter, r *http.Request) {
 type FormData struct {
 	Title   string `json:"title"`
 	Content string `json:"content"`
-	Option  bool   `json:"option"`
+	Expires string `json:"expires"`
 }
 
 // Обработчик для создание новой заметки
@@ -183,14 +183,14 @@ func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Println(formData.Option)
+		fmt.Println(formData.Expires)
 		/*id, err := app.links.Insert("INSERT INTO mytable (title, content) VALUES (?, ?)", formData.Title, formData.Content)
 		if err != nil {
 			http.Error(w, "Ошибка при записи данных в базу данных", http.StatusInternalServerError)
 			return
 		}*/
 
-		id, err := app.links.Insert(formData.Title, formData.Content, "")
+		id, err := app.links.Insert(formData.Title, formData.Content, formData.Expires)
 		if err != nil {
 			app.serverError(w, err)
 			return
