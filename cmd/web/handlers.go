@@ -197,7 +197,7 @@ func (app *application) createLink(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Write([]byte(fmt.Sprint("%d", id)))
 		//http.Redirect(w, r, fmt.Sprintf("/link?id=%d", id), http.StatusSeeOther)
-		//w.Write([]byte("Форма для создания новой заметки ..."))
+		//w.Write([]byte("Заметка успешно создана"))
 	}
 
 }
