@@ -24,7 +24,7 @@ func main() {
 	flag.Parse()
 
 	// создаем новый логер для вывода информационных сообщенйи в поток stdout c припиской info
-	infoLOg := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	//аналогично для логов с ошибками, такеж включим вывод фйла и номера  строки, где произошла ошибка
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
@@ -45,7 +45,7 @@ func main() {
 	// Инициализируем новую структуру с зависимостями приложения.
 	app := &application{
 		errorLog:      errorLog,
-		infoLog:       infoLOg,
+		infoLog:       infoLog,
 		links:         &mysql.LinkModel{DB: db},
 		templateCache: templateCache,
 	}
@@ -63,7 +63,7 @@ func main() {
 	// что любая ошибка, возвращаемая от http.ListenAndServe(), всегда non-nil.
 	// flag.String() вовзращает указатель, поэтому нам нужно убрать ссылку
 
-	infoLOg.Printf("Запуск веб-сервера на %s", *addr)
+	infoLog.Printf("Запуск веб-сервера на %s", *addr)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 
